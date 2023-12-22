@@ -1,0 +1,12 @@
+**/__pycache__/**
+api_tests.py
+benchmark.py
+**/filestorage/**
+schema.py
+task.txt
+objects_schema.py
+db_objects_schema.txt
+tasklog.log
+# db.sqlite3
+**/logs/**
+env

@@ -1,0 +1,96 @@
+
+DATABASE - <USER_WORKSPACE_ID>_SAMANTHA_CAMPAIGNS_DB
+[   
+    COLLECTION :: CAMPAIGNS - MAX 10000 Campaigns (Tolerable) - The possibility of a user having more than 10000 campaigns is very low.
+    [
+        DOCUMENT 1 :: {
+            "_id" : ObjectId,
+            "type": "Product Launch Campaign",
+            "broadcast_type": "EMAIL", # Choices are EMAIL & SMS
+            "title": "NEW PRODUCT LAUNCH",
+            "purpose": "To launch a new product",
+            "image": "https://www.image.com",
+            "keyword": "business",
+            "target_city": "Lagos",
+            "range": 1000,
+            "frequency": "WEEKLY",
+            "is_active": false,
+            "start_date": "2020-01-01",
+            "end_date": "2020-02-01",
+            "last_due_date": "2020-01-01",
+            "created_at": "2020-01-01 00:00:00",
+            "updated_at": "2020-01-01 00:00:00",
+            "launched_at": "2020-01-01 00:00:00",
+            "last_ran_at": null,
+            "is_running": false,
+            "message": {
+                "subject": "New Product Launch",
+                "body": "We are launching a new product",
+                "sender": "userxyz@host.gmail.com",
+                "updated_at": "2020-01-01 00:00:00",
+            },
+            "audiences": ["userabc@host.com", ...] # If an audience unsubscribes, remove the audience (maximum of 200 audiences per campaign)
+        },
+
+        DOCUMENT 2 :: {
+            ...
+        },
+        ...
+        ...
+        DOCUMENT 10000 :: {
+            ...
+        }
+    ],
+
+
+    COLLECTION :: CAMPAIGN RUN REPORTS FOR 2023-01-01
+    "Reports generated in the lifetime of a user's campaigns can be greater than 10000 so it its better to save by the date the report was generated/created. 
+    Also reports do not need to be updated and they are only deleted when th campaign is deleted. It is created when a campaign starts running and saved after it has finished running.
+    A User will have to retrieve reports by date generated
+    [
+        DOCUMENT :: {
+            "_id" : ObjectId,
+            "campaign_id": ObjectId,
+            "title": "NEW PRODUCT LAUNCH Campaign Run Report",
+            "events": [
+                {
+                    "id": "134567893456789dfgh",
+                    "type": "INFO",
+                    "data": {
+                        "detail": "Message sent successfully",
+                        "audience": "userabc@host.com"
+                    },
+                    "occurred_at": "2020-01-10 00:00:00",
+                },
+                {
+                    "id": "134567893456789dfgh",
+                    "type": "ERROR",
+                    "data": {
+                        "detail": "Message failed to send",
+                        "audience": "userabc@host.com",
+                        "error": "Invalid email address",
+                    },
+                    "occurred_at": "2020-01-10 00:00:00",
+                },
+                ...
+            ],
+            "created_at": datetime.datetime,
+            "updated_at": datetime.datetime,
+        },
+
+        DOCUMENT 2 :: {
+            ...
+        },
+        ...
+        ...
+        DOCUMENT 10000 :: {
+            ...
+        }
+    ],
+
+    So we can have 10000 - 2 = 9998 Campaign Run Reports (Daily) Collections in the database. Thats 9998 days / 365.25days per yr = 27.35 years of reports given that at least 1 campaign is run daily.
+    
+]
+    
+        
+            

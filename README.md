@@ -1,13 +1,12 @@
+# Dowell Samantha Campaigns API
 
-## To follow the steps you provided, please follow the instructions below:
+Dowell Samantha Campaigns API provides a means for Dowell user to send/broadcast emails to various recipients or target audiences.
 
-- Create a branch from the main branch with the name of the project you are working on, followed by your name. For example, if the project is called "MyProject" and your name is John, the branch name would be "MyProject-John".
+## Features
 
-- **Important**: Avoid pushing your code directly to the main branch. If you do so, your code will be removed, and you will need to push it again to your branch. Instead, always work on your own branch.
+Features of the API include:
 
-- Before starting the development process, make sure to thoroughly understand the project's API documentation. You can access it by clicking here, [Dowell API Services](https://github.com/orgs/DoWellUXLab/).
+- Sorting mails by validity to enable you send mails to only valid recipients.
+- Send mails to up to 5000 recipients at a time.
 
-By following these steps, you will ensure that you work on your dedicated branch, understand the API documentation, and collaborate effectively on the project.
-
-If you encounter any issues, have questions, or need assistance with the API, please contact our support team.
-
+For more info on the use of the API visit [Dowell Samantha Campaigns API Documentation](https://documenter.getpostman.com/view/21622102/2s9YJc132f).

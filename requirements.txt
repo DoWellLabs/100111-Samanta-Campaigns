@@ -1,0 +1,14 @@
+django
+djangorestframework
+django-cors-headers
+django-utz
+requests
+httpx
+aiolimiter
+bs4-web-scraper
+django-phonenumber-field[phonenumbers]
+pillow
+apscheduler
+inflection
+python-dateutil
+cachetools
