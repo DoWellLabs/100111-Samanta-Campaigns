@@ -217,10 +217,19 @@ class CampaignRetrieveUpdateDeleteAPIView(SamanthaCampaignsAPIView):
             context={"dowell_api_key": settings.PROJECT_API_KEY}
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        campaign = serializer.save()
         
+        can_launch, reason, percentage_ready = campaign.is_launchable(dowell_api_key=settings.PROJECT_API_KEY)
+        data = {
+            **campaign.data,
+            "launch_status": {
+                "can_launch": can_launch,
+                "reason": reason,
+                "percentage_ready": percentage_ready
+            }
+        }
         return response.Response(
-            data=serializer.data, 
+            data=data,
             status=status.HTTP_200_OK
         )
 
