@@ -26,6 +26,7 @@ class CampaignSerializer(serializers.Serializer):
     audiences = serializers.ListField(child=serializers.CharField(max_length=255, validators=[validate_email_or_phone_number]), allow_empty=True, required=False)
     leads_links = serializers.ListField(child=serializers.URLField(), allow_empty=True, required=False)
     image = serializers.URLField(required=False, allow_null=True)
+    default_message = serializers.BooleanField(default=False, required=False)
 
 
     def to_representation(self, campaign):

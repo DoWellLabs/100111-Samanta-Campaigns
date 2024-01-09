@@ -91,6 +91,7 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
             raise exceptions.NotAcceptable("Request body must be a dictionary.")
         
         user = DowellUser(workspace_id=workspace_id)
+        data['default_message'] = True
         serializer = CampaignSerializer(
             data=data, 
             context={
@@ -540,6 +541,14 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
+        campaign: Campaign = Campaign.manager.get(
+            creator_id=workspace_id, 
+            pkey=campaign_id, 
+            dowell_api_key=settings.PROJECT_API_KEY
+        )
+
+        campaign.default_message = False
+        campaign.save(dowell_api_key=settings.PROJECT_API_KEY)
 
         return response.Response(
             data=serializer.data, 
@@ -568,8 +577,6 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
             campaign_id=campaign_id, 
             dowell_api_key=settings.PROJECT_API_KEY
         )
-
-        # print("message is", message.data)
         
         serializer = CampaignMessageSerializer(
             instance=message, data=data, 
@@ -578,6 +585,15 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        campaign: Campaign = Campaign.manager.get(
+            creator_id=workspace_id, 
+            pkey=campaign_id, 
+            dowell_api_key=settings.PROJECT_API_KEY
+        )
+
+        campaign.default_message = False
+        campaign.save(dowell_api_key=settings.PROJECT_API_KEY)
 
         return response.Response(
             data=serializer.data, 
