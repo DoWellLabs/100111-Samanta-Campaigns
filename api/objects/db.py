@@ -28,10 +28,11 @@ class ObjectDatabase:
         :param __type: The type of the objects to fetch. Must be a subclass of Object.
         :returns: A list of Objects that match the given criteria.
         """
+        # print("type is", __type)
         from .bases import Object
         if not issubclass(__type, Object):
             raise TypeError(f"Expected Object class or subclass, got {__type} instead.")
-        return []
+        return []   
 
 
     def insert(self, obj, **kwargs):

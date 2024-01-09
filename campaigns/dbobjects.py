@@ -321,7 +321,6 @@ class Campaign(DatacubeObject):
                 old_instance = Campaign.manager.get(pkey=self.pkey, dowell_api_key=settings.PROJECT_API_KEY)
             except Campaign.DoesNotExist:
                 old_instance = None
-        
             if old_instance:
                 # Ensure that launch date is not changed after campaign has been launched
                 if old_instance.has_launched and old_instance.launched_at != self.launched_at:

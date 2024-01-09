@@ -5,7 +5,8 @@ import time
 def request_task_run():
     session = requests.Session()
     response = session.post(
-        url="https://samanta100111.pythonanywhere.com/api/v1/campaigns/webhooks/tasks/",
+        # url="https://samanta100111.pythonanywhere.com/api/v1/campaigns/webhooks/tasks/",
+        url="http://localhost:8000/api/v1/campaigns/webhooks/tasks/",
         json={
             "event": "task_due",
             "task_name": "crawl_campaigns_leads_links",
@@ -14,6 +15,7 @@ def request_task_run():
     )
     if response.status_code < 500:
         print(response.json())
+    # print("the status code is", response.status_code)
     response.raise_for_status()
 
 

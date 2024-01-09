@@ -365,6 +365,9 @@ class ObjectList(list):
         :param kwargs: keyword arguments to pass to the database's `fetch()` method.
         :returns: a ObjectList of Objects fetched from the database.
         """
+        # for key, value in kwargs.items():
+        #     print("%s == %s" % (key, value))
+
         if not self._db:
             return self.clone()
         objs = self._db.fetch(self.object_class, **kwargs)

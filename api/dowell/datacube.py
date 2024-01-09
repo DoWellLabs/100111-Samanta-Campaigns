@@ -119,6 +119,10 @@ class DowellDatacube:
         if offset:
             payload["offset"] = offset
 
+        # print("url is", self.connection_urls[operation])
+
+        # print("json data is", payload)
+
         response = requests.post(url=self.connection_urls[operation], json=payload)
         self._handle_response_errors(response)
         return response.json()["data"]
@@ -226,6 +230,7 @@ class DowellDatacube:
         :param count: The number of collections to create. Defaults to 1.
         :return: The connection response data.
         """
+        # print("collection name is", name)
         if not isinstance(name, str):
             raise TypeError("name must be a string")
         if not isinstance(count, int):

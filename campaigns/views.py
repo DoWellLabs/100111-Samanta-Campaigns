@@ -100,16 +100,49 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
         )
         serializer.is_valid(raise_exception=True)
         campaign = serializer.save()
-        
-        can_launch, reason, percentage_ready = campaign.is_launchable(dowell_api_key=settings.PROJECT_API_KEY)
+
+        default_message= {
+            "subject": campaign.title,
+            "body": campaign.purpose
+        }
+
+        message_serializer = CampaignMessageSerializer(
+            data=default_message,
+            context={
+                "campaign": campaign,
+                "dowell_api_key": settings.PROJECT_API_KEY
+            }
+        )
+
+        message_serializer.is_valid(raise_exception=True)
+        message_serializer.save()
+
+        updated_campaign: Campaign = Campaign.manager.get(
+            creator_id=workspace_id, 
+            pkey=campaign.pkey, 
+            dowell_api_key=settings.PROJECT_API_KEY
+        )
+        serializer = CampaignSerializer(
+            instance=updated_campaign, 
+            context={"dowell_api_key": settings.PROJECT_API_KEY}
+        )
+
+        can_launch, reason, percentage_ready = updated_campaign.is_launchable(dowell_api_key=settings.PROJECT_API_KEY)
+
+        # updated_campaign = Campaign.manager.get(
+
+        # )
+
+        # can_launch, reason, percentage_ready = campaign.is_launchable(dowell_api_key=settings.PROJECT_API_KEY)
         data = {
-            **campaign.data,
+            **updated_campaign.data,
             "launch_status": {
                 "can_launch": can_launch,
                 "reason": reason,
                 "percentage_ready": percentage_ready
             }
         }
+
         return response.Response(
             data=data,
             status=status.HTTP_200_OK

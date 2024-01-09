@@ -19,6 +19,7 @@ def get_dowell_user_info(client_admin_id: str):
     )
     if response.status_code == 200:
         if response.json()["success"] == True:
+            # print("the response is",response.json()['data'])
             return response.json()['data']
         raise UserNotFound(client_admin_id)
     response.raise_for_status()
