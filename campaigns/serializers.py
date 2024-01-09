@@ -73,6 +73,7 @@ class CampaignMessageSerializer(serializers.Serializer):
     subject = serializers.CharField(min_length=5, max_length=255)
     body = serializers.CharField(min_length=10, max_length=5000)
     sender = serializers.CharField(max_length=255, validators=[validate_email_or_phone_number], required=False)
+    is_default = serializers.BooleanField(default=False, required=False)
 
     def to_representation(self, campaign_message):
         return campaign_message.data
@@ -90,8 +91,8 @@ class CampaignMessageSerializer(serializers.Serializer):
         
         validated_data["type"] = campaign.broadcast_type
         validated_data["campaign_id"] = campaign.pkey
+        # print("validated data is", validated_data)
         sender = validated_data.get("sender", None)
-
         if campaign.broadcast_type.lower() == "email":
             if not sender:
                 validated_data["sender"] = campaign.creator.email
@@ -116,10 +117,9 @@ class CampaignMessageSerializer(serializers.Serializer):
             else:
                 if not is_phonenumber(sender):
                     raise exceptions.ValidationError("sender must be a valid phone number")
-            
         for attr, value in validated_data.items():
             setattr(campaign_message, attr, value)
-
+        campaign_message.is_default = False
         campaign_message.save(dowell_api_key=dowell_api_key)
         return campaign_message
 

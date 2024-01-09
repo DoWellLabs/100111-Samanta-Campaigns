@@ -103,7 +103,8 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
 
         default_message= {
             "subject": campaign.title,
-            "body": campaign.purpose
+            "body": campaign.purpose,
+            "is_default": True
         }
 
         message_serializer = CampaignMessageSerializer(
@@ -468,6 +469,7 @@ class CampaignMessageCreateRetreiveAPIView(SamanthaCampaignsAPIView):
             "subject": "",
             "body": "",
             "sender": ""
+            "is_default": ""
         }
         ```
         """
@@ -566,6 +568,8 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
             campaign_id=campaign_id, 
             dowell_api_key=settings.PROJECT_API_KEY
         )
+
+        # print("message is", message.data)
         
         serializer = CampaignMessageSerializer(
             instance=message, data=data, 

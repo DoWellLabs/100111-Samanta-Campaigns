@@ -780,6 +780,7 @@ class CampaignMessage(DatacubeObject):
         "sender": (str,),
         "created_at": (datetime.datetime,),
         "updated_at": (datetime.datetime,),
+        "is_default": (bool,),
     }
     config.choices = {
         "type": ("EMAIL", "SMS"),
@@ -847,6 +848,7 @@ class CampaignMessage(DatacubeObject):
         :param limit: maximum number of messaged recipients. Set to 0 to send to all audiences.
         :param report: `CampaignRunReport` to be used to record sending process if provided.
         """
+        
         if not self.sender:
             raise DjangoValidationError("Message sender cannot be empty.")
             
