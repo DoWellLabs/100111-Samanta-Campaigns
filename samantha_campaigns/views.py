@@ -38,5 +38,7 @@ def request_task_run(request):
     if response.status_code < 500:
         print(response.json())
         return Response(response.json())
-    response.raise_for_status()
+    print(response.raise_for_status())
+    return Response({"error": "problem when running tasks"})
+    # response.raise_for_status()
 
