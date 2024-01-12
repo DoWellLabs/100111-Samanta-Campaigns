@@ -3,6 +3,7 @@ import time
 
 
 def request_task_run():
+    print("hello world")
     session = requests.Session()
     response = session.post(
         url="https://samanta100111.pythonanywhere.com/api/v1/campaigns/webhooks/tasks/",

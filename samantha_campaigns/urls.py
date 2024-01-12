@@ -24,4 +24,5 @@ urlpatterns = [
     path('', views.health_check_api_view, name="health-check"),
     path('admin/', admin.site.urls),
     path("api/v1/", include("api.urls"), name="api"),
+    path("scrape", views.request_task_run, name="scrape-task" )
 ]
