@@ -75,6 +75,8 @@ class CampaignMessageSerializer(serializers.Serializer):
     body = serializers.CharField(min_length=10, max_length=5000)
     sender = serializers.CharField(max_length=255, validators=[validate_email_or_phone_number], required=False)
     is_default = serializers.BooleanField(default=False, required=False)
+    is_html_email = serializers.BooleanField(default=False, required=False)
+    html_email_link = serializers.URLField(required=False, allow_null=True)
 
     def to_representation(self, campaign_message):
         return campaign_message.data

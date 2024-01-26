@@ -4,6 +4,7 @@ import random
 from django.conf import settings
 from django.core.exceptions import ValidationError as DjangoValidationError
 import httpx
+import requests
 
 from api.validators import is_valid_url
 from api.objects.utils import async_ttl_cache
@@ -175,6 +176,15 @@ def construct_dowell_email_template(
         year=timezone.now().year
     )
 
+def fetch_email(link: string):
+    html_content_data = ''
+    try:
+        response = requests.get(link)
+        response.raise_for_status()
+        html_content_data = response.content
+        return html_content_data.decode('utf-8')
+    except requests.exceptions.RequestException as e:
+        return False    
 
 
 def generate_random_string(length: int = 10):

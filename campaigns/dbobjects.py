@@ -31,7 +31,8 @@ from .objectlists import CampaignList, CampaignAudienceList, CampaignAudienceLea
 from reports.dbobjects import CampaignRunReport
 from .utils import (
     construct_dowell_email_template, 
-    crawl_url_for_emails_and_phonenumbers, 
+    crawl_url_for_emails_and_phonenumbers,
+    fetch_email, 
     generate_random_string,
     check_campaign_creator_has_sufficient_credits_to_run_campaign_once
 )
@@ -94,7 +95,7 @@ class Campaign(DatacubeObject):
     }
     config.choices = {
         "broadcast_type": ("EMAIL", "SMS"),
-        "frequency": ("DAILY", "WEEKLY", "FORTNIGHTLY", "MONTHLY", "QUARTERLY"),
+        "frequency": ("DAILY", "WEEKLY", "FORTNIGHTLY", "MONTHLY", "QUARTERLY", "HOURLY"),
     }
     config.required = (
         "title",
@@ -105,7 +106,7 @@ class Campaign(DatacubeObject):
     )
     config.defaults = {
         "broadcast_type": "EMAIL",
-        "frequency": "DAILY",
+        "frequency": "HOURLY",
         "created_at": timezone.now,
         "is_active": False,
         "is_running": False,
@@ -768,7 +769,6 @@ class CampaignAudienceLeadsLink(DatacubeObject):
             self.is_crawled = True
             return result
 
-  
 
 class CampaignMessage(DatacubeObject):
     """Campaign Message Object"""
@@ -782,6 +782,8 @@ class CampaignMessage(DatacubeObject):
         "created_at": (datetime.datetime,),
         "updated_at": (datetime.datetime,),
         "is_default": (bool,),
+        "is_html_email": (bool,),
+        "html_email_link": (str,),
     }
     config.choices = {
         "type": ("EMAIL", "SMS"),
@@ -948,19 +950,35 @@ class CampaignMessage(DatacubeObject):
 
             mail_kwargs = {
                 "subject": self.subject,
-                "body": construct_dowell_email_template(
-                    subject=self.subject,
-                    body=self.body, 
-                    recipient=audience.email,
-                    image_url=campaign.image,
-                    unsubscribe_link=unsubscribe_url
-                ),
                 "user": campaign.creator,
                 "sender_name": campaign.creator.username,
                 "sender_address": self.sender,
                 "recipient_address": audience.email,
                 "client": client
             }
+            
+            if self.is_html_email:
+                # if the server is not working send normal body html
+                html_body = fetch_email(self.html_email_link)
+                if html_body:
+                    mail_kwargs["body"] = html_body
+                else:
+                    # if the fetching email template has a problem we sent normal email
+                    mail_kwargs["body"] = construct_dowell_email_template(
+                        subject=self.subject,
+                        body=self.body, 
+                        recipient=audience.email,
+                        image_url=campaign.image,
+                        unsubscribe_link=unsubscribe_url
+                    )
+            else:
+                mail_kwargs["body"] = construct_dowell_email_template(
+                        subject=self.subject,
+                        body=self.body, 
+                        recipient=audience.email,
+                        image_url=campaign.image,
+                        unsubscribe_link=unsubscribe_url
+                    )
             try:
                 await async_send_mail(**mail_kwargs)
                 if report:

@@ -7,7 +7,7 @@ import traceback
 from campaigns.dbobjects import Campaign
 from api.objects.utils import get_logger
 
- 
+
 task_logger = get_logger(
     name="campaign_tasks",
     logfile_path=os.path.join(settings.LOG_PATH, f"campaign_tasks_{timezone.now().date().isoformat()}.log"),

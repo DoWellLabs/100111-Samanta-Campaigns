@@ -192,7 +192,7 @@ class CampaignRetrieveUpdateDeleteAPIView(SamanthaCampaignsAPIView):
             status=status.HTTP_200_OK
         )
 
-       
+
     def put(self, request, *args, **kwargs):
         """
         Update a campaign
@@ -470,7 +470,9 @@ class CampaignMessageCreateRetreiveAPIView(SamanthaCampaignsAPIView):
             "subject": "",
             "body": "",
             "sender": ""
-            "is_default": ""
+            "is_default": "",
+            "is_html_email: "",
+            "html_email_link": "",
         }
         ```
         """
