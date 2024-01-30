@@ -45,7 +45,6 @@ class CampaignList(ObjectList):
         clone = self.clone()
         clone.extend(list(expired_campaigns))
         return clone
-  
 
 
 class CampaignAudienceList(ObjectList):

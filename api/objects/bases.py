@@ -84,7 +84,7 @@ class Object(metaclass=ObjectMeta):
         This class must be a subclass of `ObjectConfig`. If not specified, the default `ObjectConfig` class is used.
 
         - `manager_class`: This can be used to specify a custom manager class for the Object.
-          The manager class must be a subclass of `ObjectManager`.
+            The manager class must be a subclass of `ObjectManager`.
         
         - `config`: An instance of the `config_class`. This is used to defined the configuration for the Object.
         Each Object class must have its own configuration. Call the `new_config()` classmethod to get a new instance of the Object's `config_class`.

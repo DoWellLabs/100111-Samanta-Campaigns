@@ -79,8 +79,10 @@ class DatacubeDB(ObjectDatabase):
             ) from exc
         
         preferred_dbname = __type.config.preferred_db
+        # print("preferred_dbname", preferred_dbname, self.name)
         datacube = DowellDatacube(db_name=preferred_dbname or self.name, dowell_api_key=dowell_api_key)
         collection_name = __type.config.collection_name
+        # print("collection_name", collection_name)
         try:
             documents = datacube.fetch(_from=collection_name, limit=limit, offset=offset)
         except ConnectionError as exc:
