@@ -821,6 +821,7 @@ class CampaignMessage(DatacubeObject):
     
 
     def validate(self):
+        # validating user data
         if self.type is not None:
             if self.type.lower() == "email":
                 # Do not append, replace. This because if the type is changed from email to sms,
