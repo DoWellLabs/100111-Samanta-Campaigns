@@ -8,6 +8,121 @@ from api.dowell.user import DowellUser
 from .dbobjects import Campaign, CampaignMessage
 from .utils import construct_dowell_email_template
 from .serializers import CampaignSerializer, CampaignMessageSerializer
+from rest_framework.response import Response
+
+from api.database import SamanthaCampaignsDB
+from samantha_campaigns.settings import PROJECT_API_KEY
+from api.dowell.datacube import DowellDatacube
+
+import requests
+
+
+
+
+class UserRegistrationView(SamanthaCampaignsAPIView):
+    """
+    Endpoint for user registration related operations to create a new users collection.
+    """
+    def get(self, request):
+        """
+        Get all collections and check if there's a collection created by the user.
+
+        This method retrieves collections from the database and checks if a collection created by the user exists.
+        
+        :param request: The HTTP request object.
+        :return: A response containing collection data or a message indicating the status of the operation.
+        """
+        workspace_id = request.query_params.get("workspace_id", None)
+        collection_name = f"{workspace_id}_samanta_campaign"
+
+        dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
+
+        try:
+            response = dowell_datacube.fetch(
+                _from=collection_name,
+            )
+            if not response:
+                dowell_datacube.create_collection(name=collection_name)
+                dowell_datacube.insert(collection_name, data={"database_created": False})
+                return Response(
+                    {
+                        "success": False,
+                        "message": f"The collection {collection_name} did not exist in the Database."
+                                f"New collection  {collection_name} has been created."
+                    }, status=200)
+            else:
+                    database_created = any(item.get('database_created', False) for item in response)
+                    if not database_created:
+                        id_not_created = next((item['_id'] for item in response if not item.get('database_created')), None)
+                        return Response(
+                            {
+                                "success": False,
+                                "message": "Database not created",
+                                "id": id_not_created
+                            },
+                            status=status.HTTP_200_OK
+                        )
+                    else:
+                        response_data = {
+                            "success": True,
+                            "database_created": database_created,
+                            "message": "Database already created"
+                        }
+                        
+                        return Response(
+                            data=response_data,
+                            status=status.HTTP_200_OK
+                        )
+                
+        except Exception as err :
+            return CustomResponse(False, str(err), None, status.HTTP_501_NOT_IMPLEMENTED)
+             
+
+    def post(self, request):
+        """
+        Update database with user registration data.
+
+        This method updates the database with user registration data.
+        
+        :param request: The HTTP request object.
+        :return: A response indicating the success or failure of the database update operation.
+        """
+        try:
+            workspace_id = request.query_params.get("workspace_id")
+            collection_name = f"{workspace_id}_samanta_campaign"
+            id = request.data.get("id")
+            print(id, collection_name)
+
+            payload = {
+                "api_key": PROJECT_API_KEY,
+                "db_name": "Samanta_CampaignDB",
+                "coll_name": collection_name,
+                "operation": "update",
+                "query": {"_id": id},
+                "update_data": {"database_created": True}
+            }
+
+            response = requests.put("https://datacube.uxlivinglab.online/db_api/crud/", json=payload)
+            response_data = response.json()
+
+            print(response_data)
+
+            if not response_data:
+                return Response({
+                    "success": False,
+                    "database_created": False,
+                    "message": "Database not updated"
+                }, status=200)
+            else:
+                return Response({
+                    "success": True,
+                    "database_created": True,
+                    "message": "Database updated"
+                }, status=200)
+
+        except Exception as err:
+            return CustomResponse(False, str(err), None, status.HTTP_400_BAD_REQUEST)
+
 
 
 
@@ -32,6 +147,7 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
             dowell_api_key=settings.PROJECT_API_KEY,
             limit=page_size,
             offset=(page_number - 1) * page_size,
+            workspace_id=workspace_id,  # Include workspace_id parameter here
         )
         data = []
         necessities = (
@@ -639,3 +755,4 @@ campaign_audience_list_add_api_view = CampaignAudienceListAddAPIView.as_view()
 campaign_message_create_retrieve_api_view = CampaignMessageCreateRetreiveAPIView.as_view()
 campaign_message_update_delete_api_view = CampaignMessageUpdateDeleteAPIView.as_view()
 campaign_launch_api_view = CampaignLaunchAPIView.as_view()
+user_registration_view = UserRegistrationView.as_view()
