@@ -111,6 +111,7 @@ class DatacubeDB(ObjectDatabase):
             obj, 
             *,
             dowell_api_key: str,
+            collection_name: str,
         ):
         """
         Insert an object's data into the Datacube database based on its type.
@@ -129,7 +130,8 @@ class DatacubeDB(ObjectDatabase):
 
         preferred_dbname = obj.config.preferred_db
         datacube = DowellDatacube(db_name=preferred_dbname or self.name, dowell_api_key=dowell_api_key)
-        collection_name = obj.config.collection_name
+        # collection_name = collection_name
+        print("this is the collection_name", collection_name)
         document = obj.to_dbvalue()
 
         try:
@@ -139,7 +141,7 @@ class DatacubeDB(ObjectDatabase):
         except CollectionNotFoundError:
             if obj.config.use_daily_collection:
                 self.create_collection(obj.__class__, dowell_api_key=settings.PROJECT_API_KEY)
-                return self.insert(obj, dowell_api_key=dowell_api_key)
+                return self.insert(obj, dowell_api_key=dowell_api_key, collection_name=collection_name)
             else:
                 raise InsertionError(f"Failed to insert object into the database. {exc}")
         except DatacubeError as exc:

@@ -136,9 +136,7 @@ class Campaign(DatacubeObject):
     @functional.cached_property
     def creator(self):
         """DowellUser object that created this campaign"""
-        print(self.creator_id)
         return DowellUser(workspace_id=self.creator_id)
-    
     
     @property
     def no_of_audiences(self) -> int:
@@ -338,9 +336,10 @@ class Campaign(DatacubeObject):
                 self.deactivate(save=False)
             except:
                 pass
+        workspace_id = self.creator_id
         # If no api is not provided use campaign creator's api key
         dowell_api_key = dowell_api_key if dowell_api_key else self.creator.api_key
-        return super().save(using=using, dowell_api_key=dowell_api_key)
+        return super().save(using=using, dowell_api_key=dowell_api_key , workspace_id=workspace_id)
     
 
     def delete(self, dowell_api_key: str = None, using: ObjectList = None):

@@ -35,7 +35,7 @@ class ObjectDatabase:
         return []   
 
 
-    def insert(self, obj, **kwargs):
+    def insert(self, obj, collection_name=None, **kwargs):
         """
         Inserts an object into the database.
 
@@ -48,7 +48,7 @@ class ObjectDatabase:
         return obj.pkey
 
 
-    def update(self, obj, **kwargs):
+    def update(self, obj, collection_name=None, **kwargs):
         """
         Updates object's data in the database.
 

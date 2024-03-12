@@ -54,14 +54,16 @@ class DatacubeObject(DBObject):
         return None
     
 
-    def save(self, *, dowell_api_key: str, using: ObjectDatabase = None):
+    def save(self, *, dowell_api_key: str, using: ObjectDatabase = None ,workspace_id: str = None):
         """
         Saves the object to the database.
 
         :param dowell_api_key: The API key to use to connect to the database.
         :param using: The database to use. If not specified, the default database is used.
+        :param workspace_id: The workspace ID to use to determine the collection name.
         """
-        return super().save(using=using, dowell_api_key=dowell_api_key)
+        collection_name = f"{workspace_id}_samanta_campaign" if workspace_id else None
+        return super().save(using=using, dowell_api_key=dowell_api_key, collection_name=collection_name)
     
 
     def delete(self, *, dowell_api_key: str, using: ObjectDatabase = None):

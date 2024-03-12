@@ -387,13 +387,15 @@ class DBObject(SupportsDBOperations, Object, metaclass=DBObjectMeta):
         return using
     
     
-    def save(self, *, using: ObjectDatabase = None, **kwargs):
+    def save(self, *, using: ObjectDatabase = None, collection_name=None, **kwargs):
         """
         Saves the Object to the database.
 
         :param using: The database to use for insert operation. Defaults to `self.db()`.
+        :param collection_name: The name of the collection to save the object to.
         :param kwargs: keyword arguments to pass to database on save.
         """
+        # print("my collection",collection_name)
         using = using or self.db()
         if not using:
             raise ValueError("No database client found.")
@@ -406,12 +408,12 @@ class DBObject(SupportsDBOperations, Object, metaclass=DBObjectMeta):
             
         self.run_validations() # Run validations before saving
         if not self.pkey: # If the Object does not have a primary key, it has not been saved to the database yet
-            pk = using.insert(self, **kwargs)
+            pk = using.insert(self,collection_name=collection_name, **kwargs)
             if not pk:
                 raise DatabaseError("An error occurred while saving the Object to the database. Primary key was not returned.")
             self._pkey = str(pk)
         else:
-            saved = using.update(self, **kwargs)
+            saved = using.update(self,collection_name=collection_name, **kwargs)
             if not isinstance(saved, bool):
                 raise DatabaseError("An error occurred while saving the Object to the database. Result was not a boolean.")
             if not saved:
