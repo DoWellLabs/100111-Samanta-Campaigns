@@ -14,6 +14,7 @@ from .exceptions import (
 
 
 
+
 class DatacubeDB(ObjectDatabase):
     """A Datacube Database client."""
     name = None

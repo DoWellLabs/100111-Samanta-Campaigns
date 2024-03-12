@@ -136,7 +136,9 @@ class Campaign(DatacubeObject):
     @functional.cached_property
     def creator(self):
         """DowellUser object that created this campaign"""
+        print(self.creator_id)
         return DowellUser(workspace_id=self.creator_id)
+    
     
     @property
     def no_of_audiences(self) -> int:

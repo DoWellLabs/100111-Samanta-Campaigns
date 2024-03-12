@@ -9,11 +9,11 @@ from .dbobjects import Campaign, CampaignMessage
 from .utils import construct_dowell_email_template
 from .serializers import CampaignSerializer, CampaignMessageSerializer
 from rest_framework.response import Response
+from .helpers import CustomResponse
 
 from api.database import SamanthaCampaignsDB
 from samantha_campaigns.settings import PROJECT_API_KEY
 from api.dowell.datacube import DowellDatacube
-
 import requests
 
 
@@ -32,8 +32,9 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
         :param request: The HTTP request object.
         :return: A response containing collection data or a message indicating the status of the operation.
         """
-        workspace_id = request.query_params.get("workspace_id", None)
-        collection_name = f"{workspace_id}_samanta_campaign"
+        self.workspace_id = request.query_params.get("workspace_id", None)
+        collection_name = f"{ self.workspace_id}_samanta_campaign"
+        self.get_workspace_id(self.workspace_id)
 
         dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
 
@@ -76,6 +77,10 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
                 
         except Exception as err :
             return CustomResponse(False, str(err), None, status.HTTP_501_NOT_IMPLEMENTED)
+    
+    def get_workspace_id(self, workspace_id):
+        print(workspace_id)
+        return workspace_id
              
 
     def post(self, request):
