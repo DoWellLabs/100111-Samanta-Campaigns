@@ -15,7 +15,7 @@ from api.database import SamanthaCampaignsDB
 from samantha_campaigns.settings import PROJECT_API_KEY
 from api.dowell.datacube import DowellDatacube
 import requests
-from .helper import CustomResponse
+from .helpers import CustomResponse
 
 
 
@@ -35,7 +35,7 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
         """
         self.workspace_id = request.query_params.get("workspace_id", None)
         collection_name = f"{ self.workspace_id}_samanta_campaign"
-        self.get_workspace_id(self.workspace_id)
+        
 
         dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
 
@@ -79,9 +79,6 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
         except Exception as err :
             return CustomResponse(False, str(err), None, status.HTTP_501_NOT_IMPLEMENTED)
     
-    def get_workspace_id(self, workspace_id):
-        print(workspace_id)
-        return workspace_id
              
 
     def post(self, request):
