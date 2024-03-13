@@ -336,6 +336,7 @@ class Campaign(DatacubeObject):
                 self.deactivate(save=False)
             except:
                 pass
+        # get creator_id to use to save a campaign to creator's collection
         workspace_id = self.creator_id
         # If no api is not provided use campaign creator's api key
         dowell_api_key = dowell_api_key if dowell_api_key else self.creator.api_key
