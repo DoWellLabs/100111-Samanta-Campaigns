@@ -60,7 +60,7 @@ class DatacubeObject(DBObject):
 
         :param dowell_api_key: The API key to use to connect to the database.
         :param using: The database to use. If not specified, the default database is used.
-        :param workspace_id: The workspace ID to use to determine the collection name.
+        :param workspace_id: The workspace ID  used to determine the collection name.
         """
         collection_name = f"{workspace_id}_samanta_campaign" if workspace_id else None
         return super().save(using=using, dowell_api_key=dowell_api_key, collection_name=collection_name)
