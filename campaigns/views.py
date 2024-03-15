@@ -33,7 +33,7 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
         :return: A response containing collection data or a message indicating the status of the operation.
         """
         workspace_id = request.query_params.get("workspace_id", None)
-        collection_name = f"{workspace_id}_samanta_campaign"
+        collection_name = f"{workspace_id}_samantha_campaign"
 
         dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
 
@@ -89,7 +89,7 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
         """
         try:
             workspace_id = request.query_params.get("workspace_id")
-            collection_name = f"{workspace_id}_samanta_campaign"
+            collection_name = f"{workspace_id}_samantha_campaign"
             id = request.data.get("id")
             print(id, collection_name)
 
@@ -135,7 +135,7 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
         workspace_id = request.query_params.get("workspace_id", None)
         page_size = request.query_params.get("page_size", 16)
         page_number = request.query_params.get("page_number", 1)
-        collection_name = f"{workspace_id}_samanta_campaign"
+        collection_name = f"{workspace_id}_samantha_campaign"
 
         dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
         try:
