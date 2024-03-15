@@ -413,7 +413,7 @@ class DBObject(SupportsDBOperations, Object, metaclass=DBObjectMeta):
                 raise DatabaseError("An error occurred while saving the Object to the database. Primary key was not returned.")
             self._pkey = str(pk)
         else:
-            saved = using.update(self,collection_name=collection_name, **kwargs)
+            saved = using.update(self, collection_name=collection_name, **kwargs)
             if not isinstance(saved, bool):
                 raise DatabaseError("An error occurred while saving the Object to the database. Result was not a boolean.")
             if not saved:

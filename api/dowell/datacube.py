@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict,Optional
 import requests
 
 from .exceptions import (
@@ -128,12 +128,14 @@ class DowellDatacube:
         return response.json()["data"]
     
 
-    def insert(self, _into: str, *, data: Dict[str, Any]):
+    def insert(self, _into: str, *, data: Dict[str, Any], filter: Optional[Dict[str, Any]] = None):
+        print(_into)
         """
         Initiates a new connection to create a new record in the specified collection of the database.
 
         :param _into: The name of the collection to create the record in.
         :param data: The data to be used to create the record.
+        :param filter: Optional filter criteria.
         :return: The connection response data.
         """
         if not isinstance(_into, str):
@@ -142,6 +144,9 @@ class DowellDatacube:
             raise ValueError("_into cannot be empty")
         if not isinstance(data, dict):
             raise TypeError("data must be a dictionary")
+        if filter is not None and not isinstance(filter, dict):
+            raise TypeError("filter must be a dictionary if provided")
+
         operation = self.insert.db_operation_name
         payload = {
             **self.connection_info,
@@ -149,6 +154,9 @@ class DowellDatacube:
             "operation": operation,
             "data": data,
         }
+        if filter:
+            payload['filter'] = filter
+
         response = requests.post(url=self.connection_urls[operation], json=payload)
         self._handle_response_errors(response)
         return response.json()["data"]

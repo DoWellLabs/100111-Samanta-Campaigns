@@ -32,8 +32,8 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
         :param request: The HTTP request object.
         :return: A response containing collection data or a message indicating the status of the operation.
         """
-        self.workspace_id = request.query_params.get("workspace_id", None)
-        collection_name = f"{ self.workspace_id}_samanta_campaign"
+        workspace_id = request.query_params.get("workspace_id", None)
+        collection_name = f"{workspace_id}_samanta_campaign"
 
         dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
 
@@ -135,43 +135,57 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
         workspace_id = request.query_params.get("workspace_id", None)
         page_size = request.query_params.get("page_size", 16)
         page_number = request.query_params.get("page_number", 1)
+        collection_name = f"{workspace_id}_samanta_campaign"
+
+        dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
         try:
             page_number = int(page_number)
             page_size = int(page_size)
         except ValueError:
             raise exceptions.NotAcceptable("Invalid page number or page size.")
         
-        user = DowellUser(workspace_id=workspace_id)
-        campaigns = Campaign.manager.filter(
-            creator_id=workspace_id, 
-            dowell_api_key=settings.PROJECT_API_KEY,
+        response = dowell_datacube.fetch(
+            _from=collection_name,
             limit=page_size,
             offset=(page_number - 1) * page_size,
-            workspace_id=workspace_id,  # Include workspace_id parameter here
         )
+        campaigns = response
+        print(campaigns)
+        user = DowellUser(workspace_id=workspace_id)
         data = []
+        # 
         necessities = (
-            "id", "title", "type", "image",
-            "broadcast_type", "start_date", 
-            "end_date", "is_active", "has_launched"
-        )
+              "id", "title", "type", "image",
+        #
+              "broadcast_type", "start_date", 
+              "end_date", "is_active", "has_launched"
+          )
         for campaign in campaigns:
-            campaign_data = campaign.data
-            campaign_data = { key: campaign_data[key] for key in necessities }
-            data.append(campaign_data)
+            campaign_data = campaign
+            filtered_campaign_data = {}
+            for key in necessities:
+                if key == 'id':
+                    filtered_campaign_data['id'] = campaign_data.get('_id', None)  # Ensure to use '_id' for MongoDB
+                elif key in campaign_data:
+                    filtered_campaign_data[key] = campaign_data[key]
+                else:
+                    filtered_campaign_data[key] = None  # Or any default value you prefer
+            data.append(filtered_campaign_data)
+
+
         
         response_data = {
-            "count": len(data),
-            "page_size": page_size,
-            "page_number": page_number,
-            "results": data,
-        }
+             "count": len(data),
+             "page_size": page_size,
+             "page_number": page_number,
+             "results": data,
+         }
         if page_number > 1:
-            response_data["previous_page"] = f"{request.path}?workspace_id={workspace_id}&page_size={page_size}&page_number={page_number - 1}"
+             response_data["previous_page"] = f"{request.path}?workspace_id={workspace_id}&page_size={page_size}&page_number={page_number - 1}"
         if len(data) == page_size:
-            response_data["next_page"] = f"{request.path}?workspace_id={workspace_id}&page_size={page_size}&page_number={page_number + 1}"
+             response_data["next_page"] = f"{request.path}?workspace_id={workspace_id}&page_size={page_size}&page_number={page_number + 1}"
 
-        return response.Response(
+        return Response(
             data=response_data, 
             status=status.HTTP_200_OK
         )
@@ -202,67 +216,85 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
         ```
         """
         workspace_id = request.query_params.get("workspace_id", None)
+        collection_name = f"{workspace_id}_samantha_campaign"
+        
         data = request.data
+        
         if not isinstance(data, dict):
             raise exceptions.NotAcceptable("Request body must be a dictionary.")
         
         user = DowellUser(workspace_id=workspace_id)
         data['default_message'] = True
+        
         serializer = CampaignSerializer(
-            data=data, 
-            context={
-                "creator": user,
-                "dowell_api_key": settings.PROJECT_API_KEY
-            }
+            data=data,
         )
         serializer.is_valid(raise_exception=True)
-        campaign = serializer.save()
-
-        default_message= {
-            "subject": campaign.title,
-            "body": campaign.purpose,
-            "is_default": True
-        }
-
-        message_serializer = CampaignMessageSerializer(
-            data=default_message,
-            context={
-                "campaign": campaign,
-                "dowell_api_key": settings.PROJECT_API_KEY
-            }
+        validated_data = serializer.data
+        dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
+        response = dowell_datacube.insert(
+            _into=collection_name,
+            data=validated_data  # Insert validated data directly
         )
+        inserted_id = response.get("inserted_id")
+        print(inserted_id)
+        #todo insert campaign
+        #will get the inserted id
+        campaign_title = validated_data.get("title")
+        campaign_purpose= validated_data.get("purpose")
+        default_message= {
+             "subject": campaign_title,
+             "body": campaign_purpose,
+             "is_default": True
+        }
+        print(default_message)
+        message_serializer = CampaignMessageSerializer(
+             data=default_message,
+         )
 
         message_serializer.is_valid(raise_exception=True)
-        message_serializer.save()
+        validated_message = message_serializer.data
 
-        updated_campaign: Campaign = Campaign.manager.get(
-            creator_id=workspace_id, 
-            pkey=campaign.pkey, 
-            dowell_api_key=settings.PROJECT_API_KEY
+        message_response = dowell_datacube.insert(
+            _into=collection_name,
+            filter={
+                "_id": inserted_id
+            },
+            data=validated_message  # Insert validated data directly
         )
-        serializer = CampaignSerializer(
-            instance=updated_campaign, 
-            context={"dowell_api_key": settings.PROJECT_API_KEY}
+        print('this is the message response', message_response)
+        # message_serializer.save()
+        # #insert the default message inside the created campain
+        updated_campaign = dowell_datacube.fetch(
+            _from=collection_name,
+            filters={
+                "_id": inserted_id
+            }
         )
-
-        can_launch, reason, percentage_ready = updated_campaign.is_launchable(dowell_api_key=settings.PROJECT_API_KEY)
-
-        # updated_campaign = Campaign.manager.get(
-
+        print("this is updated campaign",updated_campaign)
+        # serializer = CampaignSerializer(
+        #     instance=updated_campaign, 
+        #     context={"dowell_api_key": settings.PROJECT_API_KEY}
         # )
 
-        # can_launch, reason, percentage_ready = campaign.is_launchable(dowell_api_key=settings.PROJECT_API_KEY)
-        data = {
-            **updated_campaign.data,
-            "launch_status": {
-                "can_launch": can_launch,
-                "reason": reason,
-                "percentage_ready": percentage_ready
-            }
-        }
+        # can_launch, reason, percentage_ready = updated_campaign.is_launchable(dowell_api_key=settings.PROJECT_API_KEY)
 
-        return response.Response(
-            data=data,
+        # # updated_campaign = Campaign.manager.get(
+
+        # # )
+
+        # # can_launch, reason, percentage_ready = campaign.is_launchable(dowell_api_key=settings.PROJECT_API_KEY)
+        # data = {
+        #     **updated_campaign.data,
+        #     "launch_status": {
+        #         "can_launch": can_launch,
+        #         "reason": reason,
+        #         "percentage_ready": percentage_ready
+        #     }
+        # }
+
+        return Response(
+            data=response,
             status=status.HTTP_200_OK
         )
 
