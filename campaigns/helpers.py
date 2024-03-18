@@ -132,15 +132,17 @@ class CampaignHelper:
         if not ans:
             return ans, f"DowellService '{service}' is not active.", math.ceil(percentage_ready)
         percentage_ready += 25.000
-
-        # if not leads_links.uncrawled().empty:
-        #     return False, "Some leads links have not been crawled", math.ceil(percentage_ready)
-        # percentage_ready += 25.000
-
-        # ans = check_campaign_creator_has_sufficient_credits_to_run_campaign_once(self)
-        # if not ans:
-        #     return ans, "You do not have sufficient credits to run this campaign. Please top up.", math.ceil(percentage_ready)
-        # percentage_ready += 25.000
+        lead_links = campaign_list[0].get("lead_links", [])
+        #todo check how crawling is done
+        if not lead_links.uncrawled().empty:
+             return False, "Some leads links have not been crawled", math.ceil(percentage_ready)
+        percentage_ready += 25.000
+        audiences = campaign_list[0].get("audiences", [])
+        no_of_audiences = len(audiences)
+        ans = check_campaign_creator_has_sufficient_credits_to_run_campaign_once(broadcast_type,no_of_audiences,campaign_creator)
+        if not ans:
+            return ans, "You do not have sufficient credits to run this campaign. Please top up.", math.ceil(percentage_ready)
+        percentage_ready += 25.000
 
         return ans, "Campaign can be launched", math.ceil(percentage_ready)
 

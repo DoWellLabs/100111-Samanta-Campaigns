@@ -144,7 +144,7 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
         #     raise exceptions.NotAcceptable("Invalid page number or page size.")
         response = dowell_datacube.fetch(
             _from=collection_name,
-            limit=20,
+            limit=50,
             offset=0,
         )
         campaigns = response
@@ -216,8 +216,6 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
 
         if not isinstance(data, dict):
             raise exceptions.NotAcceptable("Request body must be a dictionary.")
-
-        user = DowellUser(workspace_id=workspace_id)
         data['default_message'] = True
 
         serializer = CampaignSerializer(
