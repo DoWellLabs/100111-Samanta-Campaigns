@@ -113,6 +113,7 @@ class DowellDatacube:
             "coll_name": _from,
             "operation": operation,
             "filters": filters,
+            "payment":False
         }
         if limit:
             payload["limit"] = limit
