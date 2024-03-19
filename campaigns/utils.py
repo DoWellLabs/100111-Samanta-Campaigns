@@ -9,30 +9,28 @@ import requests
 from api.validators import is_valid_url
 from api.objects.utils import async_ttl_cache
 
+from api.dowell.user import DowellUser
+
 
 
 # DOES NOT YET TAKE INTO CONSIDERATION THAT USER MAY HAVE OTHER SCHEDULED CAMPAIGNS THAT WILL ACCESS THE AVAILABLE CREDITS LATER
-def check_campaign_creator_has_sufficient_credits_to_run_campaign_once(campaign):
+def check_campaign_creator_has_sufficient_credits_to_run_campaign_once(broadcast_type,no_of_audiences,campaign_creator):
     """
     Check that campaign has enough credits to send campaign to all its audiences
 
     :param campaign: Campaign to perform check for
-    """
-    from campaigns.dbobjects import Campaign
-    if not isinstance(campaign, Campaign):
-        raise TypeError("`campaign` should be of type Campaign")
-    
-    if campaign.broadcast_type == "SMS":
+    """    
+    if broadcast_type == "SMS":
         subservice_id = settings.DOWELL_SAMANTHA_CAMPAIGNS_SMS_SUBSERVICE_ID
-    elif campaign.broadcast_type == "EMAIL":
+    elif broadcast_type == "EMAIL":
         subservice_id = settings.DOWELL_SAMANTHA_CAMPAIGNS_MAIL_SUBSERVICE_ID
     else:
-        raise ValueError(f"Unsupported Campaign broadcast type: '{campaign.broadcast_type}'.")
+        raise ValueError(f"Unsupported Campaign broadcast type: '{broadcast_type}'.")
 
-    return campaign.creator.has_enough_credits_for(
+    return campaign_creator.has_enough_credits_for(
         service=settings.DOWELL_SAMANTHA_CAMPAIGNS_SERVICE_ID, 
         subservices=[subservice_id],
-        count=campaign.no_of_audiences
+        count=no_of_audiences
     )
 
 
