@@ -11,3 +11,4 @@ tasklog.log
 **/logs/**
 env
 myenv
+logs
