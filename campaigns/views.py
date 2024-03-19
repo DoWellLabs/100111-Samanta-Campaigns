@@ -182,7 +182,7 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
         #      response_data["next_page"] = f"{request.path}?workspace_id={workspace_id}&page_size={page_size}&page_number={page_number + 1}"
 
         return Response(
-            data=response, 
+            data=response_data, 
             status=status.HTTP_200_OK
         )
     
