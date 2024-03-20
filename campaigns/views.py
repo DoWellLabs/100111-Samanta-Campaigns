@@ -670,41 +670,51 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         """
         workspace_id = request.query_params.get("workspace_id", None)
         campaign_id = kwargs.get("campaign_id", None)
-        message_id = kwargs.get("message_id", None)
+        
         data = request.data
         if not isinstance(data, dict):
             raise exceptions.NotAcceptable("Request body must be a dictionary.")
         if not campaign_id:
             raise exceptions.NotAcceptable("Campaign id must be provided.")
-        if not message_id:
-            raise exceptions.NotAcceptable("Message id must be provided.")
         
-        user = DowellUser(workspace_id=workspace_id)
-        message = CampaignMessage.manager.get(
-            pkey=message_id, 
-            campaign_id=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
-        )
+        collection_name = f"{workspace_id}_samantha_campaign"
+        dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
+        campaign = dowell_datacube.fetch(
+            _from=collection_name,
+            filters={
+                "_id": campaign_id
+            }
+        ) 
+        if not campaign:
+          raise exceptions.NotFound("Campaign not found.")
+
+        message_serializer = CampaignMessageSerializer(data=data)
+        message_serializer.is_valid(raise_exception=True)
+        validated_message = message_serializer.validated_data
         
-        serializer = CampaignMessageSerializer(
-            instance=message, 
-            data=data, 
-            context={"dowell_api_key": settings.PROJECT_API_KEY}
+
+     
+        dowell_datacube.update(
+            _in=collection_name,
+            filter={
+                "_id": campaign_id
+            },
+            data={
+                "default_message": False,
+                "message": validated_message
+                }
         )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
 
-        campaign: Campaign = Campaign.manager.get(
-            creator_id=workspace_id, 
-            pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
-        )
-
-        campaign.default_message = False
-        campaign.save(dowell_api_key=settings.PROJECT_API_KEY)
-
+        updated_campaign = dowell_datacube.fetch(
+            _from=collection_name,
+            filters={
+                "_id": campaign_id
+            }
+        ) 
+        updated_message = updated_campaign[0].get("message", None)
+        
         return response.Response(
-            data=serializer.data, 
+            data=updated_message, 
             status=status.HTTP_200_OK
         )
 
@@ -715,41 +725,52 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         """
         workspace_id = request.query_params.get("workspace_id", None)
         campaign_id = kwargs.get("campaign_id", None)
-        message_id = kwargs.get("message_id", None)
+
         data = request.data
         if not isinstance(data, dict):
             raise exceptions.NotAcceptable("Request body must be a dictionary.")
         if not campaign_id:
             raise exceptions.NotAcceptable("Campaign id must be provided.")
-        if not message_id:
-            raise exceptions.NotAcceptable("Message id must be provided.")
         
-        user = DowellUser(workspace_id=workspace_id)
-        message = CampaignMessage.manager.get(
-            pkey=message_id, 
-            campaign_id=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
-        )
+    
+        collection_name = f"{workspace_id}_samantha_campaign"
+        dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
+        campaign = dowell_datacube.fetch(
+            _from=collection_name,
+            filters={
+                "_id": campaign_id
+            }
+        ) 
+        if not campaign:
+          raise exceptions.NotFound("Campaign not found.")
+
+        message_serializer = CampaignMessageSerializer(data=data,partial=True)
+        message_serializer.is_valid(raise_exception=True)
+        validated_message = message_serializer.validated_data
         
-        serializer = CampaignMessageSerializer(
-            instance=message, data=data, 
-            partial=True, 
-            context={"dowell_api_key": settings.PROJECT_API_KEY}
+
+     
+        dowell_datacube.update(
+            _in=collection_name,
+            filter={
+                "_id": campaign_id
+            },
+            data={
+                "default_message": False,
+                "message": validated_message
+                }
         )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
 
-        campaign: Campaign = Campaign.manager.get(
-            creator_id=workspace_id, 
-            pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
-        )
-
-        campaign.default_message = False
-        campaign.save(dowell_api_key=settings.PROJECT_API_KEY)
-
+        updated_campaign = dowell_datacube.fetch(
+            _from=collection_name,
+            filters={
+                "_id": campaign_id
+            }
+        ) 
+        updated_message = updated_campaign[0].get("message", None)
+        
         return response.Response(
-            data=serializer.data, 
+            data=updated_message, 
             status=status.HTTP_200_OK
         )
 
