@@ -15,6 +15,7 @@ from api.database import SamanthaCampaignsDB
 from samantha_campaigns.settings import PROJECT_API_KEY
 from api.dowell.datacube import DowellDatacube
 import requests
+from api.utils import _send_mail
 
 
 
@@ -122,6 +123,67 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
 
         except Exception as err:
             return CustomResponse(False, str(err), None, status.HTTP_400_BAD_REQUEST)
+
+
+class TestEmail(SamanthaCampaignsAPIView):
+    def post(self, request, *args, **kwargs):
+        workspace_id = request.query_params.get("workspace_id")
+        #todo get the message from the campaign
+        campaign_id = request.data.get("campaign_id")
+        recipient_address = request.data.get("recipient_address")
+        sender_address = request.data.get("sender_address")
+        sender_name = "SAMANTHA CAMPAIGN"
+        recipient_name = request.data.get("recipient_name")
+
+        collection_name = f"{workspace_id}_samantha_campaign"
+        dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
+        campaign_list = dowell_datacube.fetch(
+            _from=collection_name,
+            filters={"_id": campaign_id}
+        )
+        if campaign_list is not None and len(campaign_list) > 0:  # Check if list is not empty
+            message = campaign_list[0].get("message")  # Access message if it exists
+            if message:  # Check if message is not None
+                #subject = message.get("subject", None)
+                subject = request.data.get("subject", None)
+                # body = message.get("body", None)
+                body = request.data.get("body", None)
+            else:
+                # Handle the case where message is None
+                return Response({
+                    "success": False,
+                    "message": "No message found for the campaign."
+                }, status=400)
+
+            try:
+                _send_mail(
+                    subject=subject,
+                    body=construct_dowell_email_template(
+                        subject=subject,
+                        body=body,
+                        recipient=recipient_address
+                    ),
+                    sender_address=sender_address,
+                    recipient_address=recipient_address,
+                    sender_name=sender_name,
+                    recipient_name=recipient_name,
+                )
+                return Response({
+                    "success": True,
+                    "message": "Email sent"
+                }, status=200)
+            except Exception as e:
+                return Response({
+                    "success": False,
+                    "message": f"Failed to send email. Error: {str(e)}"
+                }, status=500)
+        else:
+            return Response({
+                "success": False,
+                "message": "No campaign found with the given ID."
+            }, status=404)
+
+
 
 
 
@@ -765,3 +827,4 @@ campaign_message_create_retrieve_api_view = CampaignMessageCreateRetreiveAPIView
 campaign_message_update_delete_api_view = CampaignMessageUpdateDeleteAPIView.as_view()
 campaign_launch_api_view = CampaignLaunchAPIView.as_view()
 user_registration_view = UserRegistrationView.as_view()
+test_email_view = TestEmail.as_view()
