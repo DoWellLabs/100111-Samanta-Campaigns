@@ -15,6 +15,7 @@ from api.database import SamanthaCampaignsDB
 from samantha_campaigns.settings import PROJECT_API_KEY
 from api.dowell.datacube import DowellDatacube
 import requests
+from api.utils import _send_mail
 
 
 
@@ -122,6 +123,62 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
 
         except Exception as err:
             return CustomResponse(False, str(err), None, status.HTTP_400_BAD_REQUEST)
+
+
+class TestEmail(SamanthaCampaignsAPIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            workspace_id = request.query_params.get("workspace_id")
+            user = DowellUser(workspace_id=workspace_id)
+            user_api_key = user.api_key
+
+            campaign_id = request.data.get("campaign_id")
+            recipient_address = request.data.get("recipient_address")
+            sender_address = request.data.get("sender_address")
+            sender_name = "SAMANTHA CAMPAIGN"
+            recipient_name = request.data.get("recipient_name")
+
+            collection_name = f"{workspace_id}_samantha_campaign"
+            dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=user_api_key)
+            campaign_list = dowell_datacube.fetch(
+                _from=collection_name,
+                filters={"_id": campaign_id}
+            )
+
+            if campaign_list and campaign_list[0].get("message"):
+                message = campaign_list[0]["message"]
+                subject = message.get("subject")
+                body = message.get("body")
+
+                _send_mail(
+                    subject=subject,
+                    body=construct_dowell_email_template(
+                        subject=subject,
+                        body=body,
+                        recipient=recipient_address
+                    ),
+                    sender_address=sender_address,
+                    recipient_address=recipient_address,
+                    sender_name=sender_name,
+                    recipient_name=recipient_name,
+                )
+                return Response({
+                    "success": True,
+                    "message": "Email sent"
+                }, status=200)
+            else:
+                return Response({
+                    "success": False,
+                    "message": "No message found for the campaign."
+                }, status=400)
+
+        except Exception as e:
+            return Response({
+                "success": False,
+                "message": f"Failed to send email. Error: {str(e)}"
+            }, status=500)
+
+
 
 
 
@@ -812,3 +869,4 @@ campaign_message_create_retrieve_api_view = CampaignMessageCreateRetreiveAPIView
 campaign_message_update_delete_api_view = CampaignMessageUpdateDeleteAPIView.as_view()
 campaign_launch_api_view = CampaignLaunchAPIView.as_view()
 user_registration_view = UserRegistrationView.as_view()
+test_email_view = TestEmail.as_view()
