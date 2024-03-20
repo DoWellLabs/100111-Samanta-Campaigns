@@ -36,12 +36,12 @@ def check_campaign_creator_has_sufficient_credits_to_run_campaign_once(broadcast
 
 
 def construct_dowell_email_template(
-        subject: str,
-        body: str, 
-        recipient: str, 
-        image_url: str = None,
-        unsubscribe_link: str = None
-    ):
+    subject: str,
+    body: str, 
+    recipient: str, 
+    image_url: str = None,
+    unsubscribe_link: str = None
+):
     """
     Convert a text to an samantha campaigns email template
 
@@ -109,9 +109,7 @@ def construct_dowell_email_template(
               >
                 Hey {recipient},
               </p>
-              <p style="font-size: 14px">
-                {body}
-              </p>
+              {body}  <!-- Body is inserted here -->
             </section>
 
             {unsubscribe_section}
@@ -165,14 +163,19 @@ def construct_dowell_email_template(
         """
     else:
         unsubscribe_section = ""
+
+    # Wrap each paragraph in <p> tags
+    body_paragraphs = "\n".join(f"<p style='font-size: 14px'>{paragraph.strip()}</p>" for paragraph in body.split("\n\n"))
+
     return template.format(
         subject=subject.title(),
-        body=body, 
+        body=body_paragraphs,  # Replaced body with paragraphs
         recipient=recipient, 
         image_url=image_url or "https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png",
         unsubscribe_section=unsubscribe_section,
         year=timezone.now().year
     )
+
 
 def fetch_email(link: string):
     html_content_data = ''
