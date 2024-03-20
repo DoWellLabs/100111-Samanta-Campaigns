@@ -20,6 +20,7 @@ from api.validators import (
     MinMaxLengthValidator
 )
 from api.dowell.user import DowellUser
+from .objectlists import CampaignAudienceLeadsLinkList
 
 
 # CAMPAIGN SIGNALS
@@ -89,6 +90,7 @@ class CampaignHelper:
     def __init__(self, workspace_id):
         self.workspace_id = workspace_id
         self.dowell_api_key = PROJECT_API_KEY  # Assuming PROJECT_API_KEY is defined elsewhere
+        self.leads_links = CampaignAudienceLeadsLinkList(object_class="campaigns.dbobjects.CampaignAudienceLeadsLink")
 
     def get_campaign(self, campaign_id):
         collection_name = f"{self.workspace_id}_samantha_campaign"
@@ -132,9 +134,9 @@ class CampaignHelper:
         if not ans:
             return ans, f"DowellService '{service}' is not active.", math.ceil(percentage_ready)
         percentage_ready += 25.000
-        lead_links = campaign_list[0].get("lead_links", [])
+        # lead_links = campaign_list[0].get("lead_links", [])
         #todo check how crawling is done
-        if not lead_links.uncrawled().empty:
+        if not self.leads_links.uncrawled().empty:
              return False, "Some leads links have not been crawled", math.ceil(percentage_ready)
         percentage_ready += 25.000
         audiences = campaign_list[0].get("audiences", [])
