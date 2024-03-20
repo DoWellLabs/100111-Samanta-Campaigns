@@ -127,35 +127,29 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
 
 class TestEmail(SamanthaCampaignsAPIView):
     def post(self, request, *args, **kwargs):
-        workspace_id = request.query_params.get("workspace_id")
-        #todo get the message from the campaign
-        campaign_id = request.data.get("campaign_id")
-        recipient_address = request.data.get("recipient_address")
-        sender_address = request.data.get("sender_address")
-        sender_name = "SAMANTHA CAMPAIGN"
-        recipient_name = request.data.get("recipient_name")
+        try:
+            workspace_id = request.query_params.get("workspace_id")
+            user = DowellUser(workspace_id=workspace_id)
+            user_api_key = user.api_key
 
-        collection_name = f"{workspace_id}_samantha_campaign"
-        dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=PROJECT_API_KEY)
-        campaign_list = dowell_datacube.fetch(
-            _from=collection_name,
-            filters={"_id": campaign_id}
-        )
-        if campaign_list is not None and len(campaign_list) > 0:  # Check if list is not empty
-            message = campaign_list[0].get("message")  # Access message if it exists
-            if message:  # Check if message is not None
-                #subject = message.get("subject", None)
-                subject = request.data.get("subject", None)
-                # body = message.get("body", None)
-                body = request.data.get("body", None)
-            else:
-                # Handle the case where message is None
-                return Response({
-                    "success": False,
-                    "message": "No message found for the campaign."
-                }, status=400)
+            campaign_id = request.data.get("campaign_id")
+            recipient_address = request.data.get("recipient_address")
+            sender_address = request.data.get("sender_address")
+            sender_name = "SAMANTHA CAMPAIGN"
+            recipient_name = request.data.get("recipient_name")
 
-            try:
+            collection_name = f"{workspace_id}_samantha_campaign"
+            dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=user_api_key)
+            campaign_list = dowell_datacube.fetch(
+                _from=collection_name,
+                filters={"_id": campaign_id}
+            )
+
+            if campaign_list and campaign_list[0].get("message"):
+                message = campaign_list[0]["message"]
+                subject = message.get("subject")
+                body = message.get("body")
+
                 _send_mail(
                     subject=subject,
                     body=construct_dowell_email_template(
@@ -172,16 +166,17 @@ class TestEmail(SamanthaCampaignsAPIView):
                     "success": True,
                     "message": "Email sent"
                 }, status=200)
-            except Exception as e:
+            else:
                 return Response({
                     "success": False,
-                    "message": f"Failed to send email. Error: {str(e)}"
-                }, status=500)
-        else:
+                    "message": "No message found for the campaign."
+                }, status=400)
+
+        except Exception as e:
             return Response({
                 "success": False,
-                "message": "No campaign found with the given ID."
-            }, status=404)
+                "message": f"Failed to send email. Error: {str(e)}"
+            }, status=500)
 
 
 
