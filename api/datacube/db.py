@@ -61,6 +61,7 @@ class DatacubeDB(ObjectDatabase):
             dowell_api_key: str, 
             limit: int = None,
             offset: int = None,
+            workspace_id: str = None
         ):
         """
         Retrieve objects of the specified type from the Datacube database.
@@ -82,18 +83,15 @@ class DatacubeDB(ObjectDatabase):
         preferred_dbname = __type.config.preferred_db
         # print("preferred_dbname", preferred_dbname, self.name)
         datacube = DowellDatacube(db_name=preferred_dbname or self.name, dowell_api_key=dowell_api_key)
-        collection_name = __type.config.collection_name
+        collection_name = f"{workspace_id}_samantha_campaign"
         # print("collection_name", collection_name)
         try:
             documents = datacube.fetch(_from=collection_name, limit=limit, offset=offset)
         except ConnectionError as exc:
             raise FetchError(f"Failed to fetch objects from the database. {exc}")
-        except CollectionNotFoundError:
-            if __type.config.use_daily_collection:
-                self.create_collection(__type, dowell_api_key=settings.PROJECT_API_KEY)
-                return self.fetch(__type, dowell_api_key=dowell_api_key, limit=limit, offset=offset)
-            else:
-                raise FetchError(f"Failed to fetch objects from the database. {exc}")
+        except CollectionNotFoundError as exc:
+           
+            raise FetchError(f"Failed to fetch objects from the database. {exc}")
         except DatacubeError as exc:
             raise DatabaseError(f"Failed to fetch objects from the database. {exc}")
         
