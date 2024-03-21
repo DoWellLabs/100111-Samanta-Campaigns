@@ -15,15 +15,18 @@ class datacube_use_objectlist(use_objectlist):
                 self, 
                 dowell_api_key: str = None, 
                 limit: int = None,
-                offset: int = None, 
+                offset: int = None,
+                workspace_id: str = None, 
                 *args,
-                **kwargs
+                **kwargs,
+                
             ):
             # Fetch all objects in the manager's objectlist (and database), using the necessary keyword arguments
             manager_objlist = self.get_objectlist().all(
                 dowell_api_key=dowell_api_key, 
                 limit=limit, 
-                offset=offset
+                offset=offset,
+                workspace_id=workspace_id
             )
             # Then, call the method on the objectlist returned
             return getattr(manager_objlist, method_name)(*args, **kwargs)
