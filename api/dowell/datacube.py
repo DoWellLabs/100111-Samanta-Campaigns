@@ -125,7 +125,6 @@ class DowellDatacube:
         # print("json data is", payload)
 
         response = requests.post(url=self.connection_urls[operation], json=payload)
-        print(response.json())
         # self._handle_response_errors(response)
         return response.json()["data"]
     

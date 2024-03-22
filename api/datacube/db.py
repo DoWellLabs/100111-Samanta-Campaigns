@@ -61,7 +61,8 @@ class DatacubeDB(ObjectDatabase):
             dowell_api_key: str, 
             limit: int = None,
             offset: int = None,
-            workspace_id: str = None
+            workspace_id: str = None,
+            wanted: str = None,
         ):
         """
         Retrieve objects of the specified type from the Datacube database.
@@ -89,7 +90,9 @@ class DatacubeDB(ObjectDatabase):
         try:
             _resp = datacube.fetch(_from=collection_name, limit=limit, offset=offset)
             # print(_resp)
-            documents = [obj for obj in _resp if obj.get("creator_id")]
+            value ="creator_id" if wanted is None else "campaign_id"
+            print(value)
+            documents = [obj for obj in _resp if obj.get(value)]
         except ConnectionError as exc:
             raise FetchError(f"Failed to fetch objects from the database. {exc}")
         except CollectionNotFoundError as exc:

@@ -224,7 +224,8 @@ class CampaignRetrieveUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         campaign: Campaign = Campaign.manager.get(
             creator_id=workspace_id, 
             pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
         serializer = CampaignSerializer(
             instance=campaign, 

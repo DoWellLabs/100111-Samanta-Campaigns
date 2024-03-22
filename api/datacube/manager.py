@@ -17,6 +17,7 @@ class datacube_use_objectlist(use_objectlist):
                 limit: int = None,
                 offset: int = None,
                 workspace_id: str = None, 
+                wanted: str = None, 
                 *args,
                 **kwargs,
                 
@@ -26,7 +27,8 @@ class datacube_use_objectlist(use_objectlist):
                 dowell_api_key=dowell_api_key, 
                 limit=limit, 
                 offset=offset,
-                workspace_id=workspace_id
+                workspace_id=workspace_id,
+                wanted=wanted
             )
             # Then, call the method on the objectlist returned
             return getattr(manager_objlist, method_name)(*args, **kwargs)

@@ -107,13 +107,13 @@ class ObjectList(list):
         if not kwargs:
             raise ValueError("No keyword arguments provided.")
         # print(**kwargs)
-        filtered = self.filter(negate=True, **kwargs)
+        filtered = self.filter(**kwargs)
         print(filtered)
         if filtered.empty:
             raise self.object_class.DoesNotExist(f"No {self.object_class.__name__} found with attributes: {' '.join([f'`{k}={v}`' for k, v in kwargs.items()])}")
-        # if filtered.count() > 1:
-        #     raise self.object_class.MultipleObjectsReturned(f"Multiple {inflection.pluralize(self.object_class.__name__)} returned.")
-        return filtered.last()
+        if filtered.count() > 1:
+            raise self.object_class.MultipleObjectsReturned(f"Multiple {inflection.pluralize(self.object_class.__name__)} returned.")
+        return filtered.first()
 
 
     def filter(self, *, negate: bool = False, **kwargs):

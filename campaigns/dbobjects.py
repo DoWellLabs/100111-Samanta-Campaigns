@@ -302,7 +302,7 @@ class Campaign(DatacubeObject):
         """
         workspace_id = self.creator_id
         dowell_api_key = dowell_api_key if dowell_api_key else self.creator.api_key
-        msg = CampaignMessage.manager.filter(campaign_id=self.pkey, dowell_api_key=dowell_api_key,workspace_id=workspace_id).first()
+        msg = CampaignMessage.manager.filter(campaign_id=self.pkey, dowell_api_key=dowell_api_key,workspace_id=workspace_id, wanted="message").first()
         return msg
     
 
