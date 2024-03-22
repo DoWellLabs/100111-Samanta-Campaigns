@@ -27,7 +27,8 @@ class TestEmail(SamanthaCampaignsAPIView):
             message = CampaignMessage.manager.get(
                     campaign_id=campaign_id, 
                     dowell_api_key=settings.PROJECT_API_KEY,
-                    workspace_id=workspace_id
+                    workspace_id=workspace_id,
+                    wanted = "message"
                 )
             print(message.data)
             if message:
@@ -517,7 +518,8 @@ class CampaignMessageCreateRetreiveAPIView(SamanthaCampaignsAPIView):
         message = CampaignMessage.manager.get(
             campaign_id=campaign_id, 
             dowell_api_key=settings.PROJECT_API_KEY,
-            workspace_id=workspace_id
+            workspace_id=workspace_id,
+            wanted="message"
         )
 
         return response.Response(
@@ -600,13 +602,14 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
             pkey=message_id, 
             campaign_id=campaign_id, 
             dowell_api_key=settings.PROJECT_API_KEY,
-            workspace_id=workspace_id
+            workspace_id=workspace_id,
+            wanted="message"
         )
         
         serializer = CampaignMessageSerializer(
             instance=message, 
             data=data, 
-            context={"dowell_api_key": settings.PROJECT_API_KEY}
+            context={"dowell_api_key": settings.PROJECT_API_KEY,"workspace_id":workspace_id}
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -647,13 +650,14 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
             pkey=message_id, 
             campaign_id=campaign_id, 
             dowell_api_key=settings.PROJECT_API_KEY,
-            workspace_id=workspace_id
+            workspace_id=workspace_id,
+            wanted = "message"
         )
         
         serializer = CampaignMessageSerializer(
             instance=message, data=data, 
             partial=True, 
-            context={"dowell_api_key": settings.PROJECT_API_KEY}
+            context={"dowell_api_key": settings.PROJECT_API_KEY,"workspace_id":workspace_id}
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
