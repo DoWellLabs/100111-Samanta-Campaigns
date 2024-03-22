@@ -321,7 +321,11 @@ class Campaign(DatacubeObject):
     def save(self, dowell_api_key: str = None, using: ObjectDatabase = None):
         if self.saved:
             try:
-                old_instance = Campaign.manager.get(pkey=self.pkey, dowell_api_key=settings.PROJECT_API_KEY)
+                #todo change this
+                workspace_id=self.creator_id
+                print("id before getting old",workspace_id)
+                workspace_id=self.creator_id
+                old_instance = Campaign.manager.get(pkey=self.pkey, dowell_api_key=settings.PROJECT_API_KEY,workspace_id=workspace_id)
             except Campaign.DoesNotExist:
                 old_instance = None
             if old_instance:
@@ -337,8 +341,8 @@ class Campaign(DatacubeObject):
                 self.deactivate(save=False)
             except:
                 pass
+        print("the id workspace id",workspace_id)
         # get creator_id to use to save a campaign to creator's collection
-        workspace_id = self.creator_id
         # If no api is not provided use campaign creator's api key
         dowell_api_key = dowell_api_key if dowell_api_key else self.creator.api_key
         return super().save(using=using, dowell_api_key=dowell_api_key , workspace_id=workspace_id)
@@ -351,11 +355,12 @@ class Campaign(DatacubeObject):
         :param dowell_api_key: Optional Dowell API key to use for deleting campaign.
         If not provided, the campaign creator's API key is used.
         """
+        workspace_id = self.creator_id
         dowell_api_key = dowell_api_key if dowell_api_key else self.creator.api_key
         message = self.get_message(dowell_api_key=settings.PROJECT_API_KEY)
         if message:
-            message.delete(using=using, dowell_api_key=dowell_api_key)
-        return super().delete(using=using, dowell_api_key=dowell_api_key)
+            message.delete(using=using, dowell_api_key=dowell_api_key,workspace_id=workspace_id)
+        return super().delete(using=using, dowell_api_key=dowell_api_key,workspace_id=workspace_id)
     
 
     def validate(self):

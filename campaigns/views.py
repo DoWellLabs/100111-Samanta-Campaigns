@@ -26,7 +26,8 @@ class TestEmail(SamanthaCampaignsAPIView):
 
             message = CampaignMessage.manager.get(
                     campaign_id=campaign_id, 
-                    dowell_api_key=settings.PROJECT_API_KEY
+                    dowell_api_key=settings.PROJECT_API_KEY,
+                    workspace_id=workspace_id
                 )
             print(message.data)
             if message:
@@ -266,9 +267,10 @@ class CampaignRetrieveUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         campaign: Campaign = Campaign.manager.get(
             creator_id=workspace_id, 
             pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
-        
+        print("getting campaign worked")
         serializer = CampaignSerializer(
             instance=campaign, 
             data=data, 
@@ -276,7 +278,7 @@ class CampaignRetrieveUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
+        print("after saving")
         return response.Response(
             data=serializer.data, 
             status=status.HTTP_200_OK
@@ -299,14 +301,15 @@ class CampaignRetrieveUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         campaign: Campaign = Campaign.manager.get(
             creator_id=workspace_id, 
             pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
         
         serializer = CampaignSerializer(
             instance=campaign, 
             data=data, 
             partial=True, 
-            context={"dowell_api_key": settings.PROJECT_API_KEY}
+            context={"dowell_api_key": settings.PROJECT_API_KEY,"workspace_id":workspace_id}
         )
         serializer.is_valid(raise_exception=True)
         campaign = serializer.save()
@@ -336,7 +339,7 @@ class CampaignRetrieveUpdateDeleteAPIView(SamanthaCampaignsAPIView):
             raise exceptions.NotAcceptable("Campaign id must be provided.")
         
         user = DowellUser(workspace_id=workspace_id)
-        campaign: Campaign = Campaign.manager.get(creator_id=workspace_id, pkey=campaign_id, dowell_api_key=settings.PROJECT_API_KEY)
+        campaign: Campaign = Campaign.manager.get(creator_id=workspace_id, pkey=campaign_id, dowell_api_key=settings.PROJECT_API_KEY,workspace_id=workspace_id)
         campaign.delete(dowell_api_key=settings.PROJECT_API_KEY)
 
         return response.Response(
@@ -365,7 +368,8 @@ class CampaignActivateDeactivateAPIView(SamanthaCampaignsAPIView):
         campaign: Campaign = Campaign.manager.get(
             creator_id=workspace_id,
             pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
 
         if campaign.is_active:
@@ -400,7 +404,8 @@ class CampaignAudienceListAddAPIView(SamanthaCampaignsAPIView):
         campaign = Campaign.manager.get(
             creator_id=workspace_id, 
             pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
         
         return response.Response(
@@ -438,7 +443,8 @@ class CampaignAudienceListAddAPIView(SamanthaCampaignsAPIView):
         campaign = Campaign.manager.get(
             creator_id=workspace_id, 
             pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
 
         for audience in audiences:
@@ -451,7 +457,7 @@ class CampaignAudienceListAddAPIView(SamanthaCampaignsAPIView):
         )
 
 
-
+#todo add workspace_id
 @require_http_methods(["GET"])
 def campaign_audience_unsubscribe_view(request, *args, **kwargs):
     """
@@ -510,7 +516,8 @@ class CampaignMessageCreateRetreiveAPIView(SamanthaCampaignsAPIView):
         user = DowellUser(workspace_id=workspace_id)
         message = CampaignMessage.manager.get(
             campaign_id=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
 
         return response.Response(
@@ -548,7 +555,8 @@ class CampaignMessageCreateRetreiveAPIView(SamanthaCampaignsAPIView):
         campaign = Campaign.manager.get(
             creator_id=workspace_id, 
             pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
 
         serializer = CampaignMessageSerializer(
@@ -591,7 +599,8 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         message = CampaignMessage.manager.get(
             pkey=message_id, 
             campaign_id=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
         
         serializer = CampaignMessageSerializer(
@@ -605,7 +614,8 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         campaign: Campaign = Campaign.manager.get(
             creator_id=workspace_id, 
             pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
 
         campaign.default_message = False
@@ -636,7 +646,8 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         message = CampaignMessage.manager.get(
             pkey=message_id, 
             campaign_id=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
         
         serializer = CampaignMessageSerializer(
@@ -650,7 +661,8 @@ class CampaignMessageUpdateDeleteAPIView(SamanthaCampaignsAPIView):
         campaign: Campaign = Campaign.manager.get(
             creator_id=workspace_id, 
             pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
 
         campaign.default_message = False
@@ -677,7 +689,8 @@ class CampaignLaunchAPIView(SamanthaCampaignsAPIView):
         user = DowellUser(workspace_id=workspace_id)
         campaign = Campaign.manager.get(
             pkey=campaign_id, 
-            dowell_api_key=settings.PROJECT_API_KEY
+            dowell_api_key=settings.PROJECT_API_KEY,
+            workspace_id=workspace_id
         )
         campaign.launch(dowell_api_key=settings.PROJECT_API_KEY)
 

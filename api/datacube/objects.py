@@ -68,14 +68,17 @@ class DatacubeObject(DBObject):
         return super().save(using=using, dowell_api_key=dowell_api_key, collection_name=collection_name)
     
 
-    def delete(self, *, dowell_api_key: str, using: ObjectDatabase = None):
+    def delete(self, *, dowell_api_key: str,workspace_id:str, using: ObjectDatabase = None):
         """
         Deletes the object from the database.
 
         :param dowell_api_key: The API key to use to connect to the database.
         :param using: The database to use. If not specified, the default database is used.
         """
-        return super().delete(using=using, dowell_api_key=dowell_api_key)
+
+        
+        print("First Delete call", workspace_id)
+        return super().delete(using=using, dowell_api_key=dowell_api_key,workspace_id=workspace_id)
 
 
     async def asave(self, *, dowell_api_key: str, using: ObjectDatabase = None):
