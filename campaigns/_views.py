@@ -30,6 +30,7 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
         :param request: The HTTP request object.
         :return: A response containing collection data or a message indicating the status of the operation.
         """
+        print("called")
         workspace_id = request.query_params.get("workspace_id", None)
         collection_name = f"{workspace_id}_samantha_campaign"
         user = DowellUser(workspace_id=workspace_id)
@@ -90,34 +91,48 @@ class UserRegistrationView(SamanthaCampaignsAPIView):
         """
         try:
             workspace_id = request.query_params.get("workspace_id")
+            if not workspace_id:
+                return Response({
+                    "success": False,
+                    "message": "Workspace ID is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            id = request.data.get("id")
+            if not id:
+                return Response({
+                    "success": False,
+                    "message": "ID parameter is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
             collection_name = f"{workspace_id}_samantha_campaign"
             user = DowellUser(workspace_id=workspace_id)
             user_api_key = user.api_key
-            id = request.data.get("id")
-            print(id, collection_name)
-            dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=user_api_key)
+
+            dowell_datacube = DowellDatacube(db_name=SamanthaCampaignsDB.name, dowell_api_key=settings.PROJECT_API_KEY)
             updated = dowell_datacube.update(
                 _in=collection_name,
-                filters={"_id": id},
+                filter={"_id": id},
                 data={"database_created": True}
             )
             print(updated)
-            if not updated:
-                return Response({
-                    "success": False,
-                    "database_created": False,
-                    "message": "Database not updated"
-                }, status=200)
-            else:
+            if not updated:  # Check if updated is an empty list
                 return Response({
                     "success": True,
                     "database_created": True,
                     "message": "Database updated"
-                }, status=200)
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    "success": False,
+                    "database_created": False,
+                    "message": "Database not updated"
+                }, status=status.HTTP_200_OK)
 
         except Exception as err:
-            return CustomResponse(False, str(err), None, status.HTTP_400_BAD_REQUEST)
-
+            return Response({
+                "success": False,
+                "message": str(err)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 class TestEmail(SamanthaCampaignsAPIView):
     def post(self, request, *args, **kwargs):
