@@ -107,7 +107,6 @@ def construct_dowell_email_template(
                 style="font-size: 14px; 
                 font-weight: 600;"
               >
-                Hey {recipient},
               </p>
               {body}  <!-- Body is inserted here -->
             </section>
