@@ -45,6 +45,7 @@ class DatacubeObjectManager(ObjectManager):
             *, 
             save: bool = True, 
             dowell_api_key: str = None,
+            collection_name: str= None,
             **kwargs
         ):
         """
@@ -58,7 +59,7 @@ class DatacubeObjectManager(ObjectManager):
         """
         obj = self.object_class(**kwargs)
         if save and obj.supports_db:
-            obj.save(dowell_api_key=dowell_api_key)
+            obj.save(dowell_api_key=dowell_api_key, collection_name=collection_name)
         return obj
 
 
@@ -70,6 +71,7 @@ class DatacubeObjectManager(ObjectManager):
         :returns: a tuple of the form `(Object, created)`, where `Object` is the retrieved or created Object and `created` is a boolean specifying whether a new Object was created.
         """
         try:
+            print("Third check for GET")
             return self.get(dowell_api_key=dowell_api_key, **kwargs), False
         except self.object_class.DoesNotExist:
             return self.create(dowell_api_key=dowell_api_key, **kwargs), True

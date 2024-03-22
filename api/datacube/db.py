@@ -83,10 +83,13 @@ class DatacubeDB(ObjectDatabase):
         preferred_dbname = __type.config.preferred_db
         # print("preferred_dbname", preferred_dbname, self.name)
         datacube = DowellDatacube(db_name=preferred_dbname or self.name, dowell_api_key=dowell_api_key)
-        collection_name = f"{workspace_id}_samantha_campaign"
+        collection =workspace_id.replace(" ", "")
+        collection_name = f"{collection}_samantha_campaign"
         # print("collection_name", collection_name)
         try:
-            documents = datacube.fetch(_from=collection_name, limit=limit, offset=offset)
+            _resp = datacube.fetch(_from=collection_name, limit=limit, offset=offset)
+            # print(_resp)
+            documents = [obj for obj in _resp if obj.get("creator_id")]
         except ConnectionError as exc:
             raise FetchError(f"Failed to fetch objects from the database. {exc}")
         except CollectionNotFoundError as exc:
@@ -102,6 +105,7 @@ class DatacubeDB(ObjectDatabase):
         for document in documents:
             assert isinstance(document, dict), f"Expected DowellDatacube.fetch() to return a list of dicts, got {type(document)}"
             yield __type.from_dbvalue(document, primary_key="_id")
+            
         
 
     def insert(
@@ -125,7 +129,6 @@ class DatacubeDB(ObjectDatabase):
             raise InsertionError(
                 f"Failed to insert object into the database"
             ) from exc
-
         preferred_dbname = obj.config.preferred_db
         datacube = DowellDatacube(db_name=preferred_dbname or self.name, dowell_api_key=dowell_api_key)
         # collection_name = collection_name
@@ -136,12 +139,8 @@ class DatacubeDB(ObjectDatabase):
             result = datacube.insert(_into=collection_name, data=document)
         except ConnectionError as exc:
             raise InsertionError(f"Failed to insert object into the database. {exc}")
-        except CollectionNotFoundError:
-            if obj.config.use_daily_collection:
-                self.create_collection(obj.__class__, dowell_api_key=settings.PROJECT_API_KEY)
-                return self.insert(obj, dowell_api_key=dowell_api_key, collection_name=collection_name)
-            else:
-                raise InsertionError(f"Failed to insert object into the database. {exc}")
+        except CollectionNotFoundError as exc:
+            raise InsertionError(f"Failed to insert object into the database. {exc}")
         except DatacubeError as exc:
             raise DatabaseError(f"Failed to insert object into the database. {exc}")
         

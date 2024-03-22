@@ -50,7 +50,7 @@ class CampaignSerializer(serializers.Serializer):
             campaign.add_audience(audience)
         for link in leads_links:
             campaign.add_leads_link(link)
-            
+
         campaign.save(dowell_api_key=dowell_api_key)
         return campaign
 
@@ -89,8 +89,8 @@ class CampaignMessageSerializer(serializers.Serializer):
             raise exceptions.ValidationError("serializer context must contain 'campaign'")
         if not isinstance(campaign, Campaign):
             raise exceptions.ValidationError("Invalid type for campaign")
-        if campaign.get_message(dowell_api_key=settings.PROJECT_API_KEY):
-            raise exceptions.ValidationError(f"Campaign '{campaign.title}', already has a message")
+        # if campaign.get_message(dowell_api_key=settings.PROJECT_API_KEY):
+        #     raise exceptions.ValidationError(f"Campaign '{campaign.title}', already has a message")
         
         validated_data["type"] = campaign.broadcast_type
         validated_data["campaign_id"] = campaign.pkey
@@ -106,7 +106,8 @@ class CampaignMessageSerializer(serializers.Serializer):
                 validated_data["sender"] = campaign.creator.phonenumber
             if not is_phonenumber(validated_data["sender"]):
                 raise exceptions.ValidationError("sender must be a valid phone number")
-        return CampaignMessage.manager.create(dowell_api_key=dowell_api_key, **validated_data)
+        collection_name = f"{campaign.creator_id}_samantha_campaign"
+        return CampaignMessage.manager.create(dowell_api_key=dowell_api_key, **validated_data, collection_name=collection_name)
     
 
     def update(self, campaign_message: CampaignMessage, validated_data):

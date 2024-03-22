@@ -54,7 +54,7 @@ class DatacubeObject(DBObject):
         return None
     
 
-    def save(self, *, dowell_api_key: str, using: ObjectDatabase = None ,workspace_id: str = None):
+    def save(self, *, dowell_api_key: str, using: ObjectDatabase = None ,workspace_id: str = None, collection_name: str = None):
         """
         Saves the object to the database.
 
@@ -62,7 +62,9 @@ class DatacubeObject(DBObject):
         :param using: The database to use. If not specified, the default database is used.
         :param workspace_id: The workspace ID  used to determine the collection name.
         """
-        collection_name = f"{workspace_id}_samanta_campaign" if workspace_id else None
+        collection_name = f"{workspace_id}_samantha_campaign" if workspace_id else collection_name
+        
+        print("First Save call", collection_name)
         return super().save(using=using, dowell_api_key=dowell_api_key, collection_name=collection_name)
     
 

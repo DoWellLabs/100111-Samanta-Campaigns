@@ -479,6 +479,7 @@ class use_objectlist:
         :returns: The manager method.
         """
         def manager_method(self, *args, **kwargs):
+            print("Fourth check for GET")
             return getattr(self.get_objectlist(), method_name)(*args, **kwargs)
         return manager_method
     

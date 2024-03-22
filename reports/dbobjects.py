@@ -41,6 +41,7 @@ class CampaignRunReport(DatacubeObject):
         The Campaign that the report belongs to
         """
         from campaigns.dbobjects import Campaign
+        print("Second check for GET")
         return Campaign.manager.get(pkey=self.campaign_id, dowell_api_key=dowell_api_key)
     
 

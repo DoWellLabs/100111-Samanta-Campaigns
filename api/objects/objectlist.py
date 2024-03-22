@@ -103,14 +103,17 @@ class ObjectList(list):
         :raises `object_class.DoesNotExist`: if no match is found.
         :raises `object_class.MultipleObjectsReturned`: if multiple matches are found.
         """
+        print("This is the get method!!")
         if not kwargs:
             raise ValueError("No keyword arguments provided.")
-        filtered = self.filter(**kwargs)
+        # print(**kwargs)
+        filtered = self.filter(negate=True, **kwargs)
+        print(filtered)
         if filtered.empty:
             raise self.object_class.DoesNotExist(f"No {self.object_class.__name__} found with attributes: {' '.join([f'`{k}={v}`' for k, v in kwargs.items()])}")
-        if filtered.count() > 1:
-            raise self.object_class.MultipleObjectsReturned(f"Multiple {inflection.pluralize(self.object_class.__name__)} returned.")
-        return filtered.first()
+        # if filtered.count() > 1:
+        #     raise self.object_class.MultipleObjectsReturned(f"Multiple {inflection.pluralize(self.object_class.__name__)} returned.")
+        return filtered.last()
 
 
     def filter(self, *, negate: bool = False, **kwargs):

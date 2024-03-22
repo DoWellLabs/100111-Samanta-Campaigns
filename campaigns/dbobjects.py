@@ -820,6 +820,7 @@ class CampaignMessage(DatacubeObject):
         :param dowell_api_key: Dowell API key to use for retrieving campaign.
         """
         workspace_id = self.creator_id
+        print("Check for campaign GET", workspace_id)
         return Campaign.manager.get(pkey=self.campaign_id, dowell_api_key=dowell_api_key,workspace_id=workspace_id)
     
 

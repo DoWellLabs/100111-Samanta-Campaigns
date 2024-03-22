@@ -85,6 +85,7 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
             workspace_id=workspace_id
         )
         data = []
+
         necessities = (
             "id", "title", "type", "image",
             "broadcast_type", "start_date", 
@@ -169,7 +170,9 @@ class CampaignListCreateAPIView(SamanthaCampaignsAPIView):
         message_serializer.is_valid(raise_exception=True)
 
         message_serializer.save()
+        
         print("save is okay")
+        
         updated_campaign: Campaign = Campaign.manager.get(
             creator_id=workspace_id, 
             pkey=campaign.pkey, 
