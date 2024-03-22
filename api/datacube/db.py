@@ -158,6 +158,7 @@ class DatacubeDB(ObjectDatabase):
             obj,
             *,
             dowell_api_key: str,
+            collection_name: str,
         ):
         """
         Update an object's data in the Datacube database.
@@ -179,7 +180,6 @@ class DatacubeDB(ObjectDatabase):
 
         preferred_dbname = obj.config.preferred_db
         datacube = DowellDatacube(db_name=preferred_dbname or self.name, dowell_api_key=dowell_api_key)
-        collection_name = obj.config.collection_name
         new_document = obj.to_dbvalue()
         filter = {"_id": obj.pkey}
 
@@ -197,6 +197,7 @@ class DatacubeDB(ObjectDatabase):
             obj,
             *,
             dowell_api_key: str,
+            workspace_id: str,
         ):
         """
         Delete an object's data from the Datacube database.
@@ -217,7 +218,7 @@ class DatacubeDB(ObjectDatabase):
 
         preferred_dbname = obj.config.preferred_db
         datacube = DowellDatacube(db_name=preferred_dbname or self.name, dowell_api_key=dowell_api_key)
-        collection_name = obj.config.collection_name
+        collection_name = f"{workspace_id}_samantha_campaign"
 
         try:
             datacube.delete(_from=collection_name, filter={"_id": obj.pkey})

@@ -424,7 +424,7 @@ class DBObject(SupportsDBOperations, Object, metaclass=DBObjectMeta):
         return self
     
 
-    def delete(self, *, using: ObjectDatabase = None, **kwargs):
+    def delete(self, *, using: ObjectDatabase = None,workspace_id:str=None, **kwargs):
         """
         Deletes the Object from the database.
 
@@ -437,7 +437,7 @@ class DBObject(SupportsDBOperations, Object, metaclass=DBObjectMeta):
         using = self._validate_using(using)
 
         pre_delete.send(sender=self.__class__, instance=self, using=using)
-        deleted = using.delete(self, **kwargs)
+        deleted = using.delete(self,workspace_id=workspace_id, **kwargs)
 
         if not isinstance(deleted, bool):
             raise DatabaseError("An error occurred while deleting the Object from the database. Result was not a boolean.")
