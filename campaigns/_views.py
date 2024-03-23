@@ -163,7 +163,7 @@ class TestEmail(SamanthaCampaignsAPIView):
                     body=construct_dowell_email_template(
                         subject=subject,
                         body=body,
-                        recipient=recipient_address
+                        unsubscribe_link="https://samanta-campaigns.flutterflow.app/"
                     ),
                     sender_address=sender_address,
                     recipient_address=recipient_address,
